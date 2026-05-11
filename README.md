@@ -259,10 +259,6 @@ project/
 │
 ├── notebooks/
 │
-├── graphs/
-│
-├── utils/
-│
 ├── master_vehicle_data.csv
 │
 ├── main.py
@@ -281,42 +277,6 @@ This project explores:
 - LLM-based workflow orchestration
 - Interactive analytical reasoning
 - Safe execution pipelines
-
----
-
-# 🔮 Future Improvements
-
-- 🌐 Streamlit frontend
-- 🧠 Persistent memory/checkpointing
-- 🛡️ Sandboxed execution environment
-- 🗃️ SQL agent integration
-- 🤝 Multi-agent collaboration
-- 📊 Automated chart explanation
-- 📈 Advanced statistical analysis
-- 🔍 Retrieval-augmented schema understanding
-
----
-
-# ⚠️ Current Status
-
-🚧 Currently in active development.
-
-### Completed
-
-- ✅ Query understanding
-- ✅ Intent routing
-- ✅ Dynamic code generation
-- ✅ Human approval loop
-- ✅ Iterative feedback handling
-- ✅ Code execution pipeline
-- ✅ Result summarization
-
-### Next Phase
-
-- UI development
-- Production deployment
-- Execution sandboxing
-- Multi-agent support
 
 ---
 
