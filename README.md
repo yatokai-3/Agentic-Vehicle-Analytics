@@ -201,52 +201,6 @@ Show fuel-wise distribution of registrations in Odisha.
 
 ---
 
-# 🚀 Example Workflow
-
----
-
-## 🧾 User Query
-
-```text
-What was the trend of EV registrations in Delhi from 2020-2024?
-```
-
----
-
-## 🤖 Generated Analysis Code
-
-```python
-ev_delhi_df = df[
-    (df['State'] == 'Delhi') &
-    (df['Type'] == 'ELECTRIC(BOV)')
-]
-
-result = (
-    ev_delhi_df
-    .groupby('Year')['Count']
-    .sum()
-    .reset_index()
-)
-```
-
----
-
-## 👨 Human Feedback
-
-```text
-Use exact ELECTRIC(BOV) filter instead of broad matching.
-```
-
----
-
-## 📉 Final Output
-
-- Clean visualization
-- Numerical summary
-- Natural language explanation
-
----
-
 # 🧩 Repository Structure
 
 ```text
