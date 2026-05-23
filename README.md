@@ -1,4 +1,4 @@
-# 🚗 VahanGraph
+# VahanGraph
 ### Agentic Vehicle Registration Analytics using LangGraph
 
 <p align="center">
@@ -10,18 +10,18 @@
 
 ---
 
-> ⚡ An AI-powered analytics workflow that converts natural language questions into executable Python analysis over large-scale Indian vehicle registration datasets.
+> An AI-powered analytics workflow that converts natural language questions into executable Python analysis over large-scale Indian vehicle registration datasets.
 
 ---
 
-# ✨ Overview
+#  Overview
 
 VahanGraph is a **human-in-the-loop analytics agent** built using:
 
-- 🧠 LangGraph
-- 🐼 Pandas
-- 🤖 LLM-powered code generation
-- 📊 Dynamic visualization pipelines
+- LangGraph
+- Pandas
+- LLM-powered code generation
+- Dynamic visualization pipelines
 
 Instead of manually writing analysis scripts, users can simply ask questions like:
 
@@ -37,121 +37,28 @@ Compare diesel vehicle registrations between Bihar and Odisha.
 
 The system will:
 
-✅ Understand the query intent  
-✅ Extract metadata automatically  
-✅ Route to the correct analytical workflow  
-✅ Generate Python analysis code dynamically  
-✅ Ask for human approval/review  
-✅ Iteratively improve generated code using feedback  
-✅ Execute approved analysis  
-✅ Summarize insights in natural language  
-
----
-
-# 🧠 Core Features
-
-## 🔍 Natural Language Analytics
-
-Ask analytical questions in plain English.
-
-### Examples
-
-```text
-What was the trend of EV registrations in Delhi from 2020-2024?
-```
-
-```text
-Compare EV registrations between Delhi and Bihar.
-```
-
-```text
-Show fuel-wise distribution of registrations in Odisha.
-```
-
----
-
-## 🔄 Agentic Workflow with LangGraph
-
-The system uses graph-based orchestration for:
-
-- Metadata extraction
-- Intelligent routing
-- Iterative code generation
-- Human approval loops
-- Execution pipeline management
-
----
-
-## 👨‍💻 Human-in-the-Loop Refinement
-
-Generated code is **never blindly executed**.
-
-Users can:
-
-- ✅ Approve generated code
-- ❌ Reject generated code
-- ✍️ Provide feedback
-- 🔁 Iteratively refine analysis logic
-
-### Example Feedback
-
-```text
-Use exact ELECTRIC(BOV) instead of broad ELECTRIC matching.
-```
-
-The agent regenerates improved code using accumulated human feedback history.
-
----
-
-## ⚙️ Dynamic Python Code Generation
-
-The LLM dynamically generates:
-
-- Pandas analysis logic
-- Aggregations
-- Charts & visualizations
-- Statistical summaries
-
-while operating directly on an already-loaded DataFrame.
-
----
-
-## 🗂️ Multi-State Vehicle Registration Analytics
-
-Supports analysis across:
-
-- Delhi
-- Bihar
-- Odisha
-- Additional states via scalable folder-based ingestion
+ - Understand the query intent  
+ - Extract metadata automatically  
+ - Route to the correct analytical workflow  
+ - Generate Python analysis code dynamically  
+ - Ask for human approval/review  
+ - Iteratively improve generated code using feedback  
+ - Execute approved analysis  
+ - Summarize insights in natural language  
 
 ---
 
 # 🏗️ System Architecture
 
-```text
-User Query
-    ↓
-Metadata Extraction
-    ↓
-Intent Routing
-    ↓
-Code Generation
-    ↓
-Human Approval Loop
-    ↓
-Code Execution
-    ↓
-Result Summarization
-```
+![veh_regs.png](attachment:1a3a189a-74da-4e17-bca4-15f43f91da8f:veh_regs.png)
 
 ---
 
-# 📊 Supported Analysis Types
+# Supported Analysis Types
 
 ---
 
-## 📈 Trend Analysis
+## Trend Analysis
 
 Time-series analysis over vehicle registration data.
 
@@ -163,7 +70,7 @@ What was the trend of EV registrations in Delhi from 2020-2024?
 
 ---
 
-## ⚖️ Comparison Analysis
+## Comparison Analysis
 
 Entity-vs-entity comparison workflows.
 
@@ -175,7 +82,7 @@ Compare EV registrations between Delhi and Bihar.
 
 ---
 
-## 🥧 Breakdown Analysis
+## Breakdown Analysis
 
 Composition/distribution analysis.
 
@@ -184,20 +91,6 @@ Composition/distribution analysis.
 ```text
 Show fuel-wise distribution of registrations in Odisha.
 ```
-
----
-
-# 🛠️ Tech Stack
-
-| Technology | Purpose |
-|---|---|
-| Python | Core programming language |
-| LangGraph | Workflow orchestration |
-| Pandas | Data analysis |
-| Matplotlib | Visualization |
-| Groq API | LLM inference |
-| Pydantic | Structured outputs |
-| TypedDict | Graph state management |
 
 ---
 
@@ -222,7 +115,7 @@ project/
 
 ---
 
-# 🎯 Project Goals
+# Project Goals
 
 This project explores:
 
@@ -234,26 +127,6 @@ This project explores:
 
 ---
 
-# 💡 Why This Project?
+# If you found this interesting...
 
-Most analytics systems still require:
-
-- SQL expertise
-- Manual scripting
-- Static dashboards
-- Repetitive workflows
-
-VahanGraph attempts to bridge that gap by combining:
-
-- Natural language understanding
-- Dynamic code generation
-- Graph-based reasoning
-- Human oversight
-
-into a single intelligent analytical workflow.
-
----
-
-# ⭐ If you found this interesting...
-
-Consider starring the repository and contributing ideas 🚀
+Consider starring the repository and contributing ideas 
