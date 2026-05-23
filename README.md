@@ -50,7 +50,8 @@ The system will:
 
 # 🏗️ System Architecture
 
-![veh_regs.png](attachment:1a3a189a-74da-4e17-bca4-15f43f91da8f:veh_regs.png)
+<img width="3972" height="3184" alt="image" src="https://github.com/user-attachments/assets/ad19c343-cf0c-4ae8-acfa-0981b220062a" />
+
 
 ---
 
