@@ -123,12 +123,15 @@ html, body, [class*="css"] {
     font-size: 0.85rem;
     color: #888;
 }
-.stButton > button:hover {
-    font-family: 'Syne', sans-serif !important;
-    font-weight: 700 !important;
-    border-radius: 8px !important;
-    background: #c8f135 !important;
-    color: #0d0d0d !important;
+
+/* Always show the sidebar collapse button visibly */
+        [data-testid="collapsedControl"] {
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            background-color: #a3e635 !important;
+            border-radius: 50% !important;
+            top: 50% !important;
 }
             
 .sidebar-info strong {
