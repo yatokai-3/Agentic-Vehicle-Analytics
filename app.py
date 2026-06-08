@@ -4,17 +4,8 @@ import pandas as pd
 from agent import build_workflow, load_data, trend_function, comparison_function, breakdown_function, code_viewer, summarize
 
 
-st.set_page_config(layout="wide")
-if "show_sidebar" not in st.session_state:
-    st.session_state.show_sidebar = True
 
-@st.cache_data
-def get_dataframe():
-    csv_path = "master_vehicle_data.csv"
-    if not os.path.exists(csv_path):
-        from pre_process import process_vehicle_data
-        process_vehicle_data()
-    return pd.read_csv(csv_path)
+
 
 
 # ─── Page Config ──────────────────────────────────────────────────────────────
@@ -26,13 +17,24 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+if "show_sidebar" not in st.session_state:
+    st.session_state.show_sidebar = True
+
+@st.cache_data
+def get_dataframe():
+    csv_path = "master_vehicle_data.csv"
+    if not os.path.exists(csv_path):
+        from pre_process import process_vehicle_data
+        process_vehicle_data()
+    return pd.read_csv(csv_path)
+
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap');
 
 html, body, [class*="css"] {
     font-family: 'Syne', sans-serif;
-} 
+}
 .stApp {
     background: #0d0d0d;
     color: #f0ede6;
@@ -49,9 +51,7 @@ html, body, [class*="css"] {
     letter-spacing: -0.03em;
     margin: 0;
 }
-.main-header span {
-    color: #c8f135;
-}
+.main-header span { color: #c8f135; }
 .main-header p {
     color: #666;
     font-size: 0.95rem;
@@ -116,22 +116,6 @@ html, body, [class*="css"] {
     line-height: 1.75;
     font-size: 0.97rem;
 }
-#sidebar-btn {
-    position: fixed;
-    top: 50vh;
-    left: 0;
-    z-index: 99999;
-    background: #a3e635;
-    color: black;
-    border: none;
-    border-radius: 0 8px 8px 0;
-    width: 28px;
-    height: 48px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 2px 2px 8px rgba(0,0,0,0.4);
-}
 .sidebar-info {
     background: #161616;
     border: 1px solid #2a2a2a;
@@ -141,17 +125,6 @@ html, body, [class*="css"] {
     font-size: 0.85rem;
     color: #888;
 }
-
-/* Always show the sidebar collapse button visibly */
-        [data-testid="collapsedControl"] {
-            display: flex !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            background-color: #a3e635 !important;
-            border-radius: 50% !important;
-            top: 50% !important;
-}
-            
 .sidebar-info strong {
     color: #c8f135;
     display: block;
@@ -177,24 +150,59 @@ html, body, [class*="css"] {
 .status-running { background: #1a1a00; color: #ffdd00; border: 1px solid #ffdd00; }
 .status-done    { background: #0a1a0a; color: #c8f135; border: 1px solid #c8f135; }
 .status-waiting { background: #1a0a1a; color: #cc88ff; border: 1px solid #cc88ff; }
+
+/* ── Hide Streamlit chrome ── */
 #MainMenu { visibility: hidden; }
-footer { visibility: hidden; }
-header { visibility: hidden; }
+footer    { visibility: hidden; }
+header    { visibility: hidden; }
+
+/* ── Sidebar styling ── */
+[data-testid="stSidebar"] {
+    background: #111111 !important;
+    border-right: 1px solid #2a2a2a !important;
+}
+
+/* ── Always visible sidebar toggle arrow ── */
+[data-testid="collapsedControl"] {
+    display:        flex !important;
+    visibility:     visible !important;
+    opacity:        1 !important;
+    position:       fixed !important;
+    top:            50vh !important;
+    left:           0px !important;
+    z-index:        99999 !important;
+    background:     #c8f135 !important;
+    border-radius:  0 8px 8px 0 !important;
+    width:          28px !important;
+    height:         48px !important;
+    align-items:    center !important;
+    justify-content: center !important;
+    box-shadow:     2px 2px 8px rgba(0,0,0,0.5) !important;
+    cursor:         pointer !important;
+    transition:     left 0.3s ease !important;
+}
+[data-testid="collapsedControl"] svg {
+    fill:   #0d0d0d !important;
+    width:  14px !important;
+    height: 14px !important;
+}
 </style>
 """, unsafe_allow_html=True)
+
+
 # Sidebar visibility
 if st.session_state.show_sidebar:
     with st.sidebar:
         st.markdown("### 📊 Filters")
         # your sidebar content here
 
-# Toggle button
-if st.button(
-    ">>" if st.session_state.show_sidebar else "<<",
-    key="sidebar_toggle"
-):
-    st.session_state.show_sidebar = not st.session_state.show_sidebar
-    st.rerun()
+# # Toggle button
+# if st.button(
+#     ">>" if st.session_state.show_sidebar else "<<",
+#     key="sidebar_toggle"
+# ):
+#     st.session_state.show_sidebar = not st.session_state.show_sidebar
+#     st.rerun()
 
 # ─── Session State Init ────────────────────────────────────────────────────────
 
