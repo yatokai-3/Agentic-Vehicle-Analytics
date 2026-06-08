@@ -1,0 +1,9 @@
+streamlit
+langgraph
+langchain-groq
+langchain
+pandas
+numpy
+matplotlib
+python-dotenv
+pydantic
