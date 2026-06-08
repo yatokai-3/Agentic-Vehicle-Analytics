@@ -61,8 +61,8 @@ SAFE_BUILTINS = {
 
 # Blocked completely — nothing else gets through
 SAFE_GLOBALS = {
-    "__builtins__": SAFE_BUILTINS,  #  only whitelisted builtins
-    "__import__": None,              #  blocks all imports
+    "__builtins__": SAFE_BUILTINS  #  only whitelisted builtins
+    # "__import__": None,              #  blocks all imports
 }
 SAFE_PD={
     'read_csv': pd.read_csv,
@@ -120,8 +120,8 @@ SAFE_PLT={
 }
 
 BLOCKED_PATTERNS = [
-    r'\bimport\b',           # import os, import sys
-    r'\b__import__\b',       # __import__('os')
+    # r'\bimport\b',           # import os, import sys
+    # r'\b__import__\b',       # __import__('os')
     r'\bopen\b',             # open() file access
     r'\bexec\b',             # nested exec
     r'\beval\b',             # eval
