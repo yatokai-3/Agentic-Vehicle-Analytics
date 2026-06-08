@@ -4,7 +4,9 @@ import pandas as pd
 from agent import build_workflow, load_data, trend_function, comparison_function, breakdown_function, code_viewer, summarize
 
 
-
+st.set_page_config(layout="wide")
+if "show_sidebar" not in st.session_state:
+    st.session_state.show_sidebar = True
 
 @st.cache_data
 def get_dataframe():
@@ -114,6 +116,22 @@ html, body, [class*="css"] {
     line-height: 1.75;
     font-size: 0.97rem;
 }
+#sidebar-btn {
+    position: fixed;
+    top: 50vh;
+    left: 0;
+    z-index: 99999;
+    background: #a3e635;
+    color: black;
+    border: none;
+    border-radius: 0 8px 8px 0;
+    width: 28px;
+    height: 48px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+}
 .sidebar-info {
     background: #161616;
     border: 1px solid #2a2a2a;
@@ -164,7 +182,19 @@ footer { visibility: hidden; }
 header { visibility: hidden; }
 </style>
 """, unsafe_allow_html=True)
+# Sidebar visibility
+if st.session_state.show_sidebar:
+    with st.sidebar:
+        st.markdown("### 📊 Filters")
+        # your sidebar content here
 
+# Toggle button
+if st.button(
+    "◀" if st.session_state.show_sidebar else "▶",
+    key="sidebar_toggle"
+):
+    st.session_state.show_sidebar = not st.session_state.show_sidebar
+    st.rerun()
 
 # ─── Session State Init ────────────────────────────────────────────────────────
 
