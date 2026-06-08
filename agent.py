@@ -16,7 +16,6 @@ import matplotlib.pyplot as plt
 
 from pydantic import BaseModel, Field
 from langchain_groq import ChatGroq
-print('finished imports')
 
 # ─── LLM Setup ────────────────────────────────────────────────────────────────
 
