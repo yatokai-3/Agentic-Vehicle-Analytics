@@ -3,6 +3,18 @@ import os
 import pandas as pd
 from agent import build_workflow, load_data, trend_function, comparison_function, breakdown_function, code_viewer, summarize
 
+
+
+
+@st.cache_data
+def get_dataframe():
+    csv_path = "master_vehicle_data.csv"
+    if not os.path.exists(csv_path):
+        from pre_process import process_vehicle_data
+        process_vehicle_data()
+    return pd.read_csv(csv_path)
+
+
 # ─── Page Config ──────────────────────────────────────────────────────────────
 
 st.set_page_config(
@@ -259,6 +271,7 @@ if st.session_state.stage == "input":
                 # Step 1: Load data
                 initial_state = {"user_query": query.strip()}
                 data_state = load_data(initial_state)
+                initial_state["current_dataframe"] = get_dataframe()
                 initial_state.update(data_state)
 
                 # Step 2: Run workflow up to code generation only (skip human_approval)
