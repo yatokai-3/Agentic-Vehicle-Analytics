@@ -190,7 +190,7 @@ if st.session_state.show_sidebar:
 
 # Toggle button
 if st.button(
-    "◀" if st.session_state.show_sidebar else "▶",
+    ">>" if st.session_state.show_sidebar else "<<",
     key="sidebar_toggle"
 ):
     st.session_state.show_sidebar = not st.session_state.show_sidebar

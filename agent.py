@@ -24,8 +24,8 @@ from langchain_groq import ChatGroq
 
 llm = ChatGroq(
     api_key=st.secrets["GROQ_API_KEY"],
-    # model="llama-3.3-70b-versatile",
-    model="llama-3.3-8b-instant",
+    model="llama-3.3-70b-versatile",
+    # model="llama-3.3-8b-instant",
     temperature=0,
 )
 
