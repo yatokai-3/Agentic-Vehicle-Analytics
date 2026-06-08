@@ -24,8 +24,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ─── Custom CSS ───────────────────────────────────────────────────────────────
-
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap');
@@ -33,13 +31,10 @@ st.markdown("""
 html, body, [class*="css"] {
     font-family: 'Syne', sans-serif;
 }
-
 .stApp {
     background: #0d0d0d;
     color: #f0ede6;
 }
-
-/* Header */
 .main-header {
     padding: 2.5rem 0 1rem 0;
     border-bottom: 1px solid #2a2a2a;
@@ -60,8 +55,6 @@ html, body, [class*="css"] {
     font-size: 0.95rem;
     margin-top: 0.4rem;
 }
-
-/* Query input area */
 .query-box {
     background: #161616;
     border: 1px solid #2a2a2a;
@@ -69,8 +62,6 @@ html, body, [class*="css"] {
     padding: 1.5rem;
     margin-bottom: 1.5rem;
 }
-
-/* Step badges */
 .step-badge {
     display: inline-block;
     background: #c8f135;
@@ -83,8 +74,6 @@ html, body, [class*="css"] {
     text-transform: uppercase;
     margin-bottom: 0.75rem;
 }
-
-/* Code block */
 .code-container {
     background: #111;
     border: 1px solid #2a2a2a;
@@ -98,8 +87,6 @@ html, body, [class*="css"] {
     white-space: pre-wrap;
     margin: 1rem 0;
 }
-
-/* Approval buttons */
 .stButton > button {
     font-family: 'Syne', sans-serif !important;
     font-weight: 700 !important;
@@ -107,8 +94,6 @@ html, body, [class*="css"] {
     border: none !important;
     transition: all 0.2s !important;
 }
-
-/* Summary card */
 .summary-card {
     background: #161616;
     border: 1px solid #2a2a2a;
@@ -129,8 +114,6 @@ html, body, [class*="css"] {
     line-height: 1.75;
     font-size: 0.97rem;
 }
-
-/* Sidebar */
 .sidebar-info {
     background: #161616;
     border: 1px solid #2a2a2a;
@@ -145,8 +128,6 @@ html, body, [class*="css"] {
     display: block;
     margin-bottom: 0.3rem;
 }
-
-/* Error box */
 .error-box {
     background: #1a0a0a;
     border: 1px solid #ff4444;
@@ -156,8 +137,6 @@ html, body, [class*="css"] {
     font-family: 'DM Mono', monospace;
     font-size: 0.82rem;
 }
-
-/* Status pills */
 .status-pill {
     display: inline-block;
     padding: 4px 14px;
@@ -169,8 +148,6 @@ html, body, [class*="css"] {
 .status-running { background: #1a1a00; color: #ffdd00; border: 1px solid #ffdd00; }
 .status-done    { background: #0a1a0a; color: #c8f135; border: 1px solid #c8f135; }
 .status-waiting { background: #1a0a1a; color: #cc88ff; border: 1px solid #cc88ff; }
-
-/* Hide Streamlit default elements */
 #MainMenu { visibility: hidden; }
 footer { visibility: hidden; }
 header { visibility: hidden; }
