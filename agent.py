@@ -4,8 +4,11 @@ import operator
 from langgraph.graph import StateGraph, START, END
 import streamlit as st
 import os
+import builtins
+import types
 from dotenv import load_dotenv
 load_dotenv()
+import re 
 
 import pandas as pd
 import numpy as np
@@ -24,6 +27,127 @@ llm = ChatGroq(
     model="llama-3.3-70b-versatile",
     temperature=0,
 )
+
+# ─── Guardrails ────────────────────────────────────────────────────────────────
+
+
+# Whitelist only safe builtins
+SAFE_BUILTINS = {
+    'print': print,
+    'range': range,
+    'len': len,
+    'int': int,
+    'float': float,
+    'str': str,
+    'list': list,
+    'dict': dict,
+    'tuple': tuple,
+    'bool': bool,
+    'enumerate': enumerate,
+    'zip': zip,
+    'map': map,
+    'filter': filter,
+    'sum': sum,
+    'min': min,
+    'max': max,
+    'abs': abs,
+    'round': round,
+    'sorted': sorted,
+    'reversed': reversed,
+    'isinstance': isinstance,
+    'type': type,
+}
+
+# Blocked completely — nothing else gets through
+SAFE_GLOBALS = {
+    "__builtins__": SAFE_BUILTINS,  #  only whitelisted builtins
+    "__import__": None,              #  blocks all imports
+}
+SAFE_PD={
+    'read_csv': pd.read_csv,
+    'DataFrame': pd.DataFrame,
+    'Series': pd.Series,
+    'concat': pd.concat,
+    'merge': pd.merge,
+    'isna': pd.isna,
+    'notna': pd.notna,
+    'to_numeric': pd.to_numeric,
+    'to_datetime': pd.to_datetime,
+    'Grouper': pd.Grouper,
+}
+
+SAFE_NP={
+    'array': np.array,
+    'mean': np.mean,
+    'median': np.median,
+    'std': np.std,
+    'sum': np.sum,
+    'min': np.min,
+    'max': np.max,
+    'zeros': np.zeros,
+    'ones': np.ones,
+    'linspace': np.linspace,
+    'arange': np.arange,
+    'round': np.round,
+    'sqrt': np.sqrt,
+    'abs': np.abs,
+    'unique': np.unique,
+    'where': np.where,
+    'nan': np.nan,
+    'inf': np.inf,
+}
+
+SAFE_PLT={
+    'figure': plt.figure,
+    'plot': plt.plot,
+    'bar': plt.bar,
+    'barh': plt.barh,
+    'scatter': plt.scatter,
+    'hist': plt.hist,
+    'pie': plt.pie,
+    'xlabel': plt.xlabel,
+    'ylabel': plt.ylabel,
+    'title': plt.title,
+    'legend': plt.legend,
+    'show': plt.show,
+    'close': plt.close,
+    'tight_layout': plt.tight_layout,
+    'xticks': plt.xticks,
+    'yticks': plt.yticks,
+    'savefig': plt.savefig,
+    'subplots': plt.subplots,
+}
+
+BLOCKED_PATTERNS = [
+    r'\bimport\b',           # import os, import sys
+    r'\b__import__\b',       # __import__('os')
+    r'\bopen\b',             # open() file access
+    r'\bexec\b',             # nested exec
+    r'\beval\b',             # eval
+    r'\bsubprocess\b',       # subprocess calls
+    r'\bos\b',               # os module
+    r'\bsys\b',              # sys module
+    r'\bshutil\b',           # file operations
+    r'\bpickle\b',           # pickle exploits
+    r'\b__builtins__\b',     # accessing builtins directly
+    r'\b__globals__\b',      # globals access
+    r'\b__locals__\b',       # locals access
+    r'\bgetattr\b',          # attribute access bypass
+    r'\bsetattr\b',          # attribute setting
+    r'\bdelattr\b',          # attribute deletion
+    r'\b__class__\b',        # class manipulation
+    r'\b__subclasses__\b',   # subclass exploit
+    r'secrets',              # direct secrets access
+    r'\.toml',               # toml file access
+    r'st\.secrets',          # streamlit secrets
+]
+
+def is_code_safe(code: str) -> tuple[bool, str]:
+    for pattern in BLOCKED_PATTERNS:
+        if re.search(pattern, code):
+            return False, f"Blocked pattern detected: {pattern}"
+    return True, "OK"
+
 
 
 # ─── State Definition ─────────────────────────────────────────────────────────
@@ -273,10 +397,24 @@ def code_viewer(state: vehRegState):
     code = state["generated_code"]
     df = state["current_dataframe"]
 
-    local_namespace = {"df": df, "pd": pd, "np": np, "plt": plt}
+    #check for blocked pattern first. . . 
+    is_safe, reason = is_code_safe(code)
+    if not is_safe:
+        return {
+            "analysis_result": None,
+            "error_log": [f"Security violation: {reason}"]
+        }
+    # local_namespace = {"df": df, "pd": pd, "np": np, "plt": plt}
+    local_namespace = {
+        "df": df,
+        "pd": type('SafePd', (), SAFE_PD)(),       # pd.mean() works, pd.read_sql() blocked
+        "np": type('SafeNp', (), SAFE_NP)(),        # np.mean() works, np.fromfile() blocked
+        "plt": type('SafePlt', (), SAFE_PLT)(),     # plt.plot() works, plt.imread() blocked
+    }
 
     try:
-        exec(code, local_namespace)
+        # execute with restricted globals. . . 
+        exec(code, SAFE_GLOBALS, local_namespace)
         result = local_namespace.get("result")
         return {
             "analysis_result": result,
