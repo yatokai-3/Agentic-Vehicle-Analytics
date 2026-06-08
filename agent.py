@@ -77,8 +77,12 @@ class queryMetadata(BaseModel):
 # ─── Graph Nodes ──────────────────────────────────────────────────────────────
 
 def load_data(state: vehRegState):
-    """Load preprocessed master CSV."""
-    df = pd.read_csv("master_vehicle_data.csv")
+    """Load preprocessed master CSV, generate if missing."""
+    csv_path = "master_vehicle_data.csv"
+    if not os.path.exists(csv_path):
+        from pre_process import process_vehicle_data
+        process_vehicle_data()
+    df = pd.read_csv(csv_path)
     return {
         "current_dataframe": df,
         "data_loaded": True
