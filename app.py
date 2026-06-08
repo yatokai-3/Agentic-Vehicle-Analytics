@@ -123,6 +123,14 @@ html, body, [class*="css"] {
     font-size: 0.85rem;
     color: #888;
 }
+.stButton > button:hover {
+    font-family: 'Syne', sans-serif !important;
+    font-weight: 700 !important;
+    border-radius: 8px !important;
+    background: #c8f135 !important;
+    color: #0d0d0d !important;
+}
+            
 .sidebar-info strong {
     color: #c8f135;
     display: block;
