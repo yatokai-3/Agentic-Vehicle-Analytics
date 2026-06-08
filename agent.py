@@ -2,7 +2,7 @@ from typing import TypedDict, List, Optional
 from typing_extensions import Annotated
 import operator
 from langgraph.graph import StateGraph, START, END
-
+import streamlit as st
 import os
 from dotenv import load_dotenv
 load_dotenv()
@@ -20,7 +20,7 @@ from langchain_groq import ChatGroq
 # ─── LLM Setup ────────────────────────────────────────────────────────────────
 
 llm = ChatGroq(
-    api_key=os.environ["GROQ_API_KEY"],
+    api_key=st.secrets["GROQ_API_KEY"],
     model="llama-3.3-70b-versatile",
     temperature=0,
 )

@@ -30,7 +30,7 @@ st.markdown("""
 
 html, body, [class*="css"] {
     font-family: 'Syne', sans-serif;
-}
+} 
 .stApp {
     background: #0d0d0d;
     color: #f0ede6;
