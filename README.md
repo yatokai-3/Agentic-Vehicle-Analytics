@@ -48,7 +48,7 @@ The system will:
 
 ---
 
-# 🏗️ System Architecture
+# System Architecture
 
 <img width="3972" height="3184" alt="image" src="https://github.com/user-attachments/assets/ad19c343-cf0c-4ae8-acfa-0981b220062a" />
 
@@ -95,7 +95,7 @@ Show fuel-wise distribution of registrations in Odisha.
 
 ---
 
-# 🧩 Repository Structure
+# Repository Structure
 
 ```text
 project/
