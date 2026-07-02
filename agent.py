@@ -59,10 +59,17 @@ SAFE_BUILTINS = {
     'type': type,
 }
 
+def _blocked_import(name, *_args, **_kwargs):
+    raise ImportError(
+        f"Import statements are not permitted in generated code (tried to import '{name}'). "
+        "pd, np, plt, and df are already provided in the execution environment."
+    )
+
+SAFE_BUILTINS['__import__'] = _blocked_import
+
 # Blocked completely — nothing else gets through
 SAFE_GLOBALS = {
     "__builtins__": SAFE_BUILTINS  #  only whitelisted builtins
-    # "__import__": None,              #  blocks all imports
 }
 SAFE_PD={
     'read_csv': pd.read_csv,
@@ -277,6 +284,7 @@ def trend_function(state: vehRegState):
     A pandas dataframe named `df` already exists.
 
     DO NOT load CSV files. DO NOT use pd.read_csv(). Use the existing `df`.
+    DO NOT write any import statements. `pd`, `np`, and `plt` are already available in the execution environment.
 
     Dataset schema: {schema_info}
     Sample rows: {sample_rows}
@@ -320,6 +328,7 @@ def comparison_function(state: vehRegState):
 
     Requirements:
     - Use the existing `df` (DO NOT load any CSV)
+    - DO NOT write any import statements — `pd`, `np`, and `plt` are already available
     - Compare 2 or more entities (states, fuel types, categories, etc.)
     - Create a chart using matplotlib (do NOT call plt.show())
     - Save plot as 'chart.png' using plt.savefig('chart.png', bbox_inches='tight')
@@ -355,6 +364,7 @@ def breakdown_function(state: vehRegState):
 
     Requirements:
     - Use the existing `df` (DO NOT load any CSV)
+    - DO NOT write any import statements — `pd`, `np`, and `plt` are already available
     - Show composition/distribution of a category
     - Calculate percentage or count for each category
     - Create a pie chart or horizontal bar chart using matplotlib (do NOT call plt.show())
