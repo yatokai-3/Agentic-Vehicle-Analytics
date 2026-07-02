@@ -71,60 +71,39 @@ SAFE_BUILTINS['__import__'] = _blocked_import
 SAFE_GLOBALS = {
     "__builtins__": SAFE_BUILTINS  #  only whitelisted builtins
 }
-SAFE_PD={
-    'read_csv': pd.read_csv,
-    'DataFrame': pd.DataFrame,
-    'Series': pd.Series,
-    'concat': pd.concat,
-    'merge': pd.merge,
-    'isna': pd.isna,
-    'notna': pd.notna,
-    'to_numeric': pd.to_numeric,
-    'to_datetime': pd.to_datetime,
-    'Grouper': pd.Grouper,
+# Rather than hand-picking individual functions to expose (which inevitably
+# misses whatever the LLM decides to call next, e.g. plt.grid), expose each
+# module's full public API and only DENY the genuinely dangerous surface:
+# arbitrary file I/O, string-eval, and OS/network access. The regex layer in
+# is_code_safe() also independently blocks eval/open/os/sys/etc as raw text.
+_BLOCKED_PD_ATTRS = {
+    'read_csv', 'read_sql', 'read_sql_query', 'read_sql_table', 'read_pickle',
+    'read_json', 'read_excel', 'read_html', 'read_parquet', 'read_feather',
+    'read_hdf', 'read_orc', 'read_stata', 'read_sas', 'read_spss',
+    'read_clipboard', 'read_fwf', 'read_table', 'read_gbq', 'read_xml',
+    'ExcelWriter', 'ExcelFile', 'HDFStore', 'eval', 'io', 'core', 'testing', 'util',
+}
+_BLOCKED_NP_ATTRS = {
+    'load', 'save', 'savez', 'savez_compressed', 'fromfile', 'tofile',
+    'memmap', 'ctypeslib', 'f2py', 'distutils', 'testing', 'test',
+    'show_config', 'lib',
+}
+_BLOCKED_PLT_ATTRS = {
+    'imread', 'imsave',
 }
 
-SAFE_NP={
-    'array': np.array,
-    'mean': np.mean,
-    'median': np.median,
-    'std': np.std,
-    'sum': np.sum,
-    'min': np.min,
-    'max': np.max,
-    'zeros': np.zeros,
-    'ones': np.ones,
-    'linspace': np.linspace,
-    'arange': np.arange,
-    'round': np.round,
-    'sqrt': np.sqrt,
-    'abs': np.abs,
-    'unique': np.unique,
-    'where': np.where,
-    'nan': np.nan,
-    'inf': np.inf,
-}
 
-SAFE_PLT={
-    'figure': plt.figure,
-    'plot': plt.plot,
-    'bar': plt.bar,
-    'barh': plt.barh,
-    'scatter': plt.scatter,
-    'hist': plt.hist,
-    'pie': plt.pie,
-    'xlabel': plt.xlabel,
-    'ylabel': plt.ylabel,
-    'title': plt.title,
-    'legend': plt.legend,
-    'show': plt.show,
-    'close': plt.close,
-    'tight_layout': plt.tight_layout,
-    'xticks': plt.xticks,
-    'yticks': plt.yticks,
-    'savefig': plt.savefig,
-    'subplots': plt.subplots,
-}
+def _safe_namespace(module, blocked_attrs):
+    """Expose a module's full public API as a namespace, minus a denylist."""
+    ns = types.SimpleNamespace()
+    for name in dir(module):
+        if name.startswith('_') or name in blocked_attrs:
+            continue
+        try:
+            setattr(ns, name, getattr(module, name))
+        except AttributeError:
+            continue
+    return ns
 
 BLOCKED_PATTERNS = [
     # r'\bimport\b',           # import os, import sys
@@ -416,14 +395,11 @@ def code_viewer(state: vehRegState):
             "error_log": [f"Security violation: {reason}"]
         }
     # local_namespace = {"df": df, "pd": pd, "np": np, "plt": plt}
-    # NOTE: use SimpleNamespace, not a dynamic class — storing plain functions as
-    # *class* attributes turns them into bound methods on access, which silently
-    # injects the namespace instance as the first positional arg of every call.
     local_namespace = {
         "df": df,
-        "pd": types.SimpleNamespace(**SAFE_PD),     # pd.mean() works, pd.read_sql() blocked
-        "np": types.SimpleNamespace(**SAFE_NP),     # np.mean() works, np.fromfile() blocked
-        "plt": types.SimpleNamespace(**SAFE_PLT),   # plt.plot() works, plt.imread() blocked
+        "pd": _safe_namespace(pd, _BLOCKED_PD_ATTRS),    # pd.<anything> works except the denylist
+        "np": _safe_namespace(np, _BLOCKED_NP_ATTRS),    # np.<anything> works except the denylist
+        "plt": _safe_namespace(plt, _BLOCKED_PLT_ATTRS), # plt.<anything> works except the denylist
     }
 
     try:
