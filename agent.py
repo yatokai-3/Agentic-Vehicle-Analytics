@@ -416,11 +416,14 @@ def code_viewer(state: vehRegState):
             "error_log": [f"Security violation: {reason}"]
         }
     # local_namespace = {"df": df, "pd": pd, "np": np, "plt": plt}
+    # NOTE: use SimpleNamespace, not a dynamic class — storing plain functions as
+    # *class* attributes turns them into bound methods on access, which silently
+    # injects the namespace instance as the first positional arg of every call.
     local_namespace = {
         "df": df,
-        "pd": type('SafePd', (), SAFE_PD)(),       # pd.mean() works, pd.read_sql() blocked
-        "np": type('SafeNp', (), SAFE_NP)(),        # np.mean() works, np.fromfile() blocked
-        "plt": type('SafePlt', (), SAFE_PLT)(),     # plt.plot() works, plt.imread() blocked
+        "pd": types.SimpleNamespace(**SAFE_PD),     # pd.mean() works, pd.read_sql() blocked
+        "np": types.SimpleNamespace(**SAFE_NP),     # np.mean() works, np.fromfile() blocked
+        "plt": types.SimpleNamespace(**SAFE_PLT),   # plt.plot() works, plt.imread() blocked
     }
 
     try:
