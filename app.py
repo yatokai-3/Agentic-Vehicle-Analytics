@@ -30,113 +30,176 @@ def get_dataframe():
 
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap');
+:root {
+    --bg-void:    #050810;
+    --bg-base:    #070b14;
+    --bg-panel:   #0e1524;
+    --bg-panel-2: #121a2c;
+    --border:     #1f2b42;
+    --border-glow: rgba(34, 211, 238, 0.35);
+    --cyan:       #22d3ee;
+    --cyan-soft:  rgba(34, 211, 238, 0.12);
+    --violet:     #8b5cf6;
+    --violet-soft: rgba(139, 92, 246, 0.12);
+    --mint:       #34f5c5;
+    --amber:      #ffb84d;
+    --magenta:    #ff5c8a;
+    --text:       #e7edf7;
+    --text-dim:   #8695b3;
+    --text-faint: #4d5a76;
+    --accent-grad: linear-gradient(90deg, var(--cyan), var(--violet));
+}
 
-html, body, [class*="css"] {
-    font-family: 'Syne', sans-serif;
+/* ── Base app surface ── */
+[data-testid="stAppViewContainer"], .stApp {
+    background:
+        radial-gradient(circle at 12% -10%, rgba(34, 211, 238, 0.08), transparent 42%),
+        radial-gradient(circle at 88% 110%, rgba(139, 92, 246, 0.08), transparent 42%),
+        var(--bg-base);
+    color: var(--text);
 }
-.stApp {
-    background: #0d0d0d;
-    color: #f0ede6;
+[data-testid="stMainBlockContainer"] {
+    padding-top: 2rem;
 }
+
+/* ── Header bar: keep it, just make it invisible/transparent so the
+   sidebar re-expand arrow (stExpandSidebarButton lives inside it) still works ── */
+[data-testid="stHeader"] {
+    background: transparent !important;
+}
+[data-testid="stMainMenu"],
+[data-testid="stAppDeployButton"],
+[data-testid="stStatusWidget"] {
+    display: none !important;
+}
+#MainMenu, footer { visibility: hidden; }
+
+/* ── Sidebar collapse / expand controls ── */
+[data-testid="stExpandSidebarButton"] button,
+[data-testid="stSidebarCollapseButton"] button {
+    color: var(--cyan) !important;
+    background: var(--cyan-soft) !important;
+    border-radius: 8px !important;
+    transition: all 0.2s ease !important;
+}
+[data-testid="stExpandSidebarButton"] button:hover,
+[data-testid="stSidebarCollapseButton"] button:hover {
+    background: rgba(34, 211, 238, 0.25) !important;
+    box-shadow: 0 0 12px var(--border-glow) !important;
+}
+
+/* ── Sidebar ── */
+[data-testid="stSidebar"] {
+    border-right: 1px solid var(--border) !important;
+}
+[data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {
+    color: var(--text) !important;
+}
+
+/* ── Header ── */
 .main-header {
     padding: 2.5rem 0 1rem 0;
-    border-bottom: 1px solid #2a2a2a;
+    border-bottom: 1px solid var(--border);
     margin-bottom: 2rem;
 }
 .main-header h1 {
     font-size: 2.8rem;
     font-weight: 800;
-    color: #f0ede6;
+    color: var(--text);
     letter-spacing: -0.03em;
     margin: 0;
 }
-.main-header span { color: #c8f135; }
+.main-header span {
+    background: var(--accent-grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
 .main-header p {
-    color: #666;
+    color: var(--text-dim);
     font-size: 0.95rem;
     margin-top: 0.4rem;
+    font-family: 'JetBrains Mono', monospace;
 }
+
+/* ── Custom cards ── */
 .query-box {
-    background: #161616;
-    border: 1px solid #2a2a2a;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
     border-radius: 12px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
 }
 .step-badge {
     display: inline-block;
-    background: #c8f135;
-    color: #0d0d0d;
+    background: linear-gradient(90deg, var(--cyan-soft), var(--violet-soft));
+    color: var(--cyan);
+    font-family: 'JetBrains Mono', monospace;
     font-size: 0.7rem;
-    font-weight: 700;
-    padding: 2px 10px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border: 1px solid var(--border-glow);
     border-radius: 20px;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     margin-bottom: 0.75rem;
 }
 .code-container {
-    background: #111;
-    border: 1px solid #2a2a2a;
-    border-left: 3px solid #c8f135;
+    background: var(--bg-void);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--cyan);
     border-radius: 8px;
     padding: 1rem;
-    font-family: 'DM Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 0.82rem;
-    color: #a8d8a8;
+    color: var(--mint);
     overflow-x: auto;
     white-space: pre-wrap;
     margin: 1rem 0;
 }
-.stButton > button {
-    font-family: 'Syne', sans-serif !important;
-    font-weight: 700 !important;
-    border-radius: 8px !important;
-    border: none !important;
-    transition: all 0.2s !important;
-}
 .summary-card {
-    background: #161616;
-    border: 1px solid #2a2a2a;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
     border-radius: 12px;
     padding: 1.5rem 2rem;
     margin-top: 1.5rem;
-    border-left: 4px solid #c8f135;
+    border-left: 4px solid transparent;
+    border-image: var(--accent-grad) 1;
 }
 .summary-card h3 {
-    color: #c8f135;
+    color: var(--cyan);
+    font-family: 'JetBrains Mono', monospace;
     font-size: 0.8rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     margin-bottom: 0.75rem;
 }
 .summary-card p {
-    color: #ccc;
+    color: var(--text);
     line-height: 1.75;
     font-size: 0.97rem;
 }
 .sidebar-info {
-    background: #161616;
-    border: 1px solid #2a2a2a;
+    background: var(--bg-panel-2);
+    border: 1px solid var(--border);
     border-radius: 10px;
     padding: 1rem;
     margin-bottom: 1rem;
     font-size: 0.85rem;
-    color: #888;
+    color: var(--text-dim);
 }
 .sidebar-info strong {
-    color: #c8f135;
+    color: var(--cyan);
     display: block;
     margin-bottom: 0.3rem;
 }
 .error-box {
-    background: #1a0a0a;
-    border: 1px solid #ff4444;
+    background: rgba(255, 92, 138, 0.08);
+    border: 1px solid var(--magenta);
     border-radius: 8px;
     padding: 1rem;
-    color: #ff8888;
-    font-family: 'DM Mono', monospace;
+    color: var(--magenta);
+    font-family: 'JetBrains Mono', monospace;
     font-size: 0.82rem;
 }
 .status-pill {
@@ -145,47 +208,44 @@ html, body, [class*="css"] {
     border-radius: 20px;
     font-size: 0.75rem;
     font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
     letter-spacing: 0.06em;
 }
-.status-running { background: #1a1a00; color: #ffdd00; border: 1px solid #ffdd00; }
-.status-done    { background: #0a1a0a; color: #c8f135; border: 1px solid #c8f135; }
-.status-waiting { background: #1a0a1a; color: #cc88ff; border: 1px solid #cc88ff; }
+.status-running { background: rgba(255, 184, 77, 0.1);  color: var(--amber);  border: 1px solid var(--amber); }
+.status-done    { background: rgba(52, 245, 197, 0.1);  color: var(--mint);   border: 1px solid var(--mint); }
+.status-waiting { background: rgba(139, 92, 246, 0.12); color: var(--violet); border: 1px solid var(--violet); }
 
-/* ── Hide Streamlit chrome ── */
-#MainMenu { visibility: hidden; }
-footer    { visibility: hidden; }
-header    { visibility: hidden; }
-
-/* ── Sidebar styling ── */
-[data-testid="stSidebar"] {
-    background: #111111 !important;
-    border-right: 1px solid #2a2a2a !important;
+/* ── Buttons ── */
+[data-testid="stBaseButton-primary"] {
+    background: var(--accent-grad) !important;
+    border: none !important;
+    font-weight: 700 !important;
+    box-shadow: 0 0 0 rgba(34, 211, 238, 0) !important;
+    transition: box-shadow 0.25s ease, transform 0.15s ease !important;
+}
+[data-testid="stBaseButton-primary"]:hover {
+    box-shadow: 0 0 18px rgba(34, 211, 238, 0.45) !important;
+    transform: translateY(-1px);
+}
+[data-testid="stBaseButton-secondary"] {
+    border: 1px solid var(--border) !important;
+    background: var(--bg-panel) !important;
+    color: var(--text) !important;
+    font-weight: 600 !important;
+    transition: all 0.2s ease !important;
+}
+[data-testid="stBaseButton-secondary"]:hover {
+    border-color: var(--cyan) !important;
+    color: var(--cyan) !important;
 }
 
-/* ── Always visible sidebar toggle arrow ── */
-[data-testid="collapsedControl"] {
-    display:        flex !important;
-    visibility:     visible !important;
-    opacity:        1 !important;
-    position:       fixed !important;
-    top:            50vh !important;
-    left:           0px !important;
-    z-index:        99999 !important;
-    background:     #c8f135 !important;
-    border-radius:  0 8px 8px 0 !important;
-    width:          28px !important;
-    height:         48px !important;
-    align-items:    center !important;
-    justify-content: center !important;
-    box-shadow:     2px 2px 8px rgba(0,0,0,0.5) !important;
-    cursor:         pointer !important;
-    transition:     left 0.3s ease !important;
-}
-[data-testid="collapsedControl"] svg {
-    fill:   #0d0d0d !important;
-    width:  14px !important;
-    height: 14px !important;
-}
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--bg-void); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
+
+::selection { background: var(--violet-soft); color: var(--text); }
 </style>
 """, unsafe_allow_html=True)
 
