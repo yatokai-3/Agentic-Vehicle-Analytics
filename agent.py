@@ -8,7 +8,8 @@ import builtins
 import types
 from dotenv import load_dotenv
 load_dotenv()
-import re 
+import re
+import ast
 
 import pandas as pd
 import numpy as np
@@ -89,7 +90,7 @@ _BLOCKED_NP_ATTRS = {
     'show_config', 'lib',
 }
 _BLOCKED_PLT_ATTRS = {
-    'imread', 'imsave',
+    'imread', 'imsave', 'style', 'rc_file', 'switch_backend',
 }
 
 
@@ -129,11 +130,77 @@ BLOCKED_PATTERNS = [
     r'st\.secrets',          # streamlit secrets
 ]
 
+# Instance/attribute-call methods that are dangerous regardless of which object
+# they're called on — df/Series are the REAL, unrestricted pandas objects, so
+# these bypass the pd/np/plt module-level denylists entirely (e.g. df.to_csv(),
+# df.eval(), df.query() — pandas' own docs warn eval/query can run arbitrary
+# code with certain engines). Blocked at the AST level so no amount of string
+# obfuscation of arguments changes anything — the *call itself* is rejected.
+_BLOCKED_METHOD_NAMES = {
+    'eval', 'query',
+    'to_csv', 'to_pickle', 'to_json', 'to_excel', 'to_hdf', 'to_sql',
+    'to_parquet', 'to_feather', 'to_stata', 'to_clipboard', 'to_gbq',
+    'to_markdown', 'to_latex', 'to_html', 'to_xml', 'to_orc', 'to_fwf',
+    'tofile', 'dump', 'dumps',
+}
+
+# Bare builtin-style calls that must never appear, even though most of these
+# names were never added to SAFE_BUILTINS in the first place (defense in depth
+# — if the whitelist is ever loosened, this still catches it).
+_BLOCKED_CALL_NAMES = {
+    'eval', 'exec', 'compile', '__import__', 'getattr', 'setattr', 'delattr',
+    'globals', 'locals', 'vars', 'open', 'input', 'breakpoint', 'help',
+    'memoryview', 'exit', 'quit',
+}
+
+
+def _is_code_safe_ast(code: str) -> tuple[bool, str]:
+    """Reject anything that can reach the object graph (dunder/underscore
+    attribute access), imports, or known-dangerous calls. This is the real
+    security boundary — regex on raw text is trivially defeated by building
+    strings at runtime (e.g. '__cla' + 'ss__'), since Python identifiers in
+    normal dot-syntax are the only thing regex can see, but attribute access
+    via `.__getattribute__('__class__')` never spells the name out literally.
+    """
+    try:
+        tree = ast.parse(code)
+    except SyntaxError as e:
+        return False, f"Syntax error: {e}"
+
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            return False, "Import statements are not permitted."
+
+        if isinstance(node, ast.Attribute):
+            if node.attr.startswith('_'):
+                return False, f"Access to attribute '{node.attr}' is not permitted."
+            if node.attr in _BLOCKED_METHOD_NAMES:
+                return False, f"Calling '.{node.attr}(...)' is not permitted."
+
+        if isinstance(node, ast.Name) and node.id.startswith('__'):
+            return False, f"Access to name '{node.id}' is not permitted."
+
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            if node.name.startswith('_'):
+                return False, f"Defining '{node.name}' is not permitted."
+
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+            if node.func.id in _BLOCKED_CALL_NAMES:
+                return False, f"Call to '{node.func.id}(...)' is not permitted."
+            # type(x) for introspection is fine; type(name, bases, dict) is how
+            # you dynamically synthesize a class (e.g. to smuggle in a __init__
+            # via a computed dict key) — restrict to the harmless 1-arg form.
+            if node.func.id == 'type' and (len(node.args) != 1 or node.keywords):
+                return False, "Dynamic class creation via type(name, bases, dict) is not permitted."
+
+    return True, "OK"
+
+
 def is_code_safe(code: str) -> tuple[bool, str]:
     for pattern in BLOCKED_PATTERNS:
         if re.search(pattern, code):
             return False, f"Blocked pattern detected: {pattern}"
-    return True, "OK"
+    return _is_code_safe_ast(code)
 
 
 
@@ -394,18 +461,24 @@ def code_viewer(state: vehRegState):
             "analysis_result": None,
             "error_log": [f"Security violation: {reason}"]
         }
-    # local_namespace = {"df": df, "pd": pd, "np": np, "plt": plt}
-    local_namespace = {
+    # Single merged namespace used as BOTH globals and locals. exec(code, g, l)
+    # with two separate dicts breaks any nested def/lambda in the generated
+    # code (e.g. df.apply(lambda v: np.sqrt(v))): a function's free-variable
+    # lookups resolve through its __globals__, not the separate locals dict,
+    # so df/pd/np/plt would be invisible inside any closure. Using one dict
+    # for both (the same trick plain module-level exec() uses) fixes that.
+    sandbox_namespace = dict(SAFE_GLOBALS)
+    sandbox_namespace.update({
         "df": df,
         "pd": _safe_namespace(pd, _BLOCKED_PD_ATTRS),    # pd.<anything> works except the denylist
         "np": _safe_namespace(np, _BLOCKED_NP_ATTRS),    # np.<anything> works except the denylist
         "plt": _safe_namespace(plt, _BLOCKED_PLT_ATTRS), # plt.<anything> works except the denylist
-    }
+    })
 
     try:
-        # execute with restricted globals. . . 
-        exec(code, SAFE_GLOBALS, local_namespace)
-        result = local_namespace.get("result")
+        # execute with restricted globals. . .
+        exec(code, sandbox_namespace)
+        result = sandbox_namespace.get("result")
         return {
             "analysis_result": result,
             "error_log": []
