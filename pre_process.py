@@ -106,10 +106,10 @@ def process_vehicle_data():
 
                 all_data.append(df_long)
 
-                print(f"✓ Done: {file.name}")
+                print(f"Done: {file.name}")
 
             except Exception as e:
-                print(f"✗ Error in {file}: {e}")
+                print(f"Error in {file}: {e}")
 
     # Combine everything
     master_df = pd.concat(all_data, ignore_index=True)

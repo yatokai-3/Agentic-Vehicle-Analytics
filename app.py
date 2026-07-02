@@ -1,7 +1,22 @@
 import streamlit as st
 import os
 import pandas as pd
-from agent import build_workflow, load_data, trend_function, comparison_function, breakdown_function, code_viewer, summarize
+from agent import build_workflow, load_data, trend_function, comparison_function, breakdown_function, code_viewer, summarize, check_user_text_safety
+
+
+@st.dialog("🚫 Not Allowed")
+def show_blocked_dialog(reason: str):
+    st.write(reason)
+    if st.button("OK, got it", use_container_width=True, type="primary"):
+        st.rerun()
+
+
+def _submit_feedback():
+    """on_click callback for the feedback button — runs before the widget
+    re-renders on the next run, so this is the only safe place to clear it."""
+    st.session_state.pending_feedback = st.session_state.get("feedback_input", "")
+    st.session_state.feedback_input = ""
+    st.session_state.feedback_submitted = True
 
 
 
@@ -287,7 +302,20 @@ init_session()
 # ─── Sidebar ──────────────────────────────────────────────────────────────────
 
 with st.sidebar:
-    st.markdown("## 🚗 How to Query")
+
+    st.markdown("## Important Information")
+    st.markdown("""
+    <div class="sidebar-info">
+        <strong>Data Backend</strong>
+        "Currently, Backend data consist of vehicle class, category and fuel type for only Delhi, Odisha & Bihar."
+    </div>
+    <div class="sidebar-info">
+        <strong>Extra Information</strong>
+        " The used LLM is on a free-tier might not meet the expectation of any other strong LLM like GPT, Claude, etc"
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("## 🚗 How to Query (Sample)")
     st.markdown("""
     <div class="sidebar-info">
         <strong>Trend Analysis</strong>
@@ -327,6 +355,8 @@ st.markdown("""
 <div class="main-header">
     <h1>Vehicle Registration <span>Analyst</span></h1>
     <p>AI-powered analysis of India's vehicle registration data — powered by LangGraph + Groq</p>
+    <p>The idea behind this project is to visualize the heavy database of vehicle registration of every state of India, where within
+        each state consist its own vehicle class, category & fuel data. User can find the Trend, Breakdown and Comparison among these heavy-backed database, with just simple query.</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -352,6 +382,11 @@ if st.session_state.stage == "input":
             run_btn = st.button("▶ Analyse", use_container_width=True, type="primary")
 
     if run_btn and query.strip():
+        is_allowed, block_reason = check_user_text_safety(query.strip())
+        if not is_allowed:
+            show_blocked_dialog(block_reason)
+            st.stop()
+
         with st.spinner("🔍 Extracting intent and generating analysis code..."):
             try:
                 # Step 1: Load data
@@ -428,26 +463,41 @@ elif st.session_state.stage == "code_review":
             st.rerun()
 
     with col2:
-        with st.expander("❌ Reject & Give Feedback"):
-            feedback = st.text_area("What should be fixed?", placeholder="e.g. Use ELECTRIC(BOV) instead of just ELECTRIC", key="feedback_input")
-            if st.button("🔁 Regenerate with Feedback", use_container_width=True):
-                with st.spinner("Regenerating code with your feedback..."):
-                    try:
-                        state["human_feedback"] = [feedback]
-                        intent = st.session_state.query_intent
-                        if intent == "trend_analysis":
-                            new_code = trend_function(state)
-                        elif intent == "comparison":
-                            new_code = comparison_function(state)
-                        else:
-                            new_code = breakdown_function(state)
+        with st.expander("❌ Reject & Give Feedback related to current query only"):
+            st.text_area("What should be fixed?", placeholder="e.g. Use ELECTRIC(BOV) instead of just ELECTRIC", key="feedback_input")
+            # Clearing a widget's own session_state key isn't allowed in the same
+            # run where that widget already rendered — it must happen in an
+            # on_click callback, which runs before the widget re-renders on the
+            # next run. The callback just stashes the text and empties the box;
+            # the actual regeneration happens below in the normal script body.
+            st.button("🔁 Regenerate with Feedback", use_container_width=True, on_click=_submit_feedback)
 
-                        state.update(new_code)
-                        st.session_state.generated_code = state["generated_code"]
-                        st.session_state.intermediate_state = state
-                        st.rerun()
-                    except Exception as e:
-                        st.error(f"Regeneration failed: {str(e)}")
+    if st.session_state.get("feedback_submitted"):
+        st.session_state.feedback_submitted = False
+        feedback = st.session_state.get("pending_feedback", "")
+
+        is_allowed, block_reason = check_user_text_safety(feedback.strip())
+        if not is_allowed:
+            show_blocked_dialog(block_reason)
+            st.stop()
+
+        with st.spinner("Regenerating code with your feedback..."):
+            try:
+                state["human_feedback"] = [feedback]
+                intent = st.session_state.query_intent
+                if intent == "trend_analysis":
+                    new_code = trend_function(state)
+                elif intent == "comparison":
+                    new_code = comparison_function(state)
+                else:
+                    new_code = breakdown_function(state)
+
+                state.update(new_code)
+                st.session_state.generated_code = state["generated_code"]
+                st.session_state.intermediate_state = state
+                st.rerun()
+            except Exception as e:
+                st.error(f"Regeneration failed: {str(e)}")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
