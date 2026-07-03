@@ -333,13 +333,7 @@ with st.sidebar:
 
     st.divider()
 
-    if st.session_state.history:
-        st.markdown("### 📋 Past Queries")
-        for i, item in enumerate(reversed(st.session_state.history[-5:])):
-            with st.expander(f"Q: {item['query'][:40]}..."):
-                st.write(item['summary'][:200] + "...")
-
-    st.divider()
+    
     if st.button("🔄 Reset / New Query", use_container_width=True):
         for key in ["stage", "generated_code", "intermediate_state",
                     "summary", "analysis_result", "error_log", "query_intent"]:
@@ -347,6 +341,16 @@ with st.sidebar:
             if key == "stage":
                 st.session_state.stage = "input"
         st.rerun()
+
+    st.divider()
+    
+    if st.session_state.history:
+        st.markdown("### 📋 Past Queries")
+        for i, item in enumerate(reversed(st.session_state.history[-5:])):
+            with st.expander(f"Q: {item['query'][:40]}..."):
+                st.write(item['summary'][:200] + "...")
+
+    
 
 
 # ─── Header ───────────────────────────────────────────────────────────────────
