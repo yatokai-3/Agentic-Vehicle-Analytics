@@ -219,7 +219,8 @@ _JAILBREAK_KEYWORDS = [
     "bypass your", "override your", "unfiltered",
     "system prompt", "your instructions", "reveal your prompt", "print your prompt",
     "print your system", "show me your prompt", "what are your instructions",
-    "api key", "groq_api_key", "st.secrets", "secrets.toml", ".env file",
+    "api key", "groq_api_key", "st.secrets", "secrets.toml", ".env file","please its urgent","urgent",
+    "very important", "die","death","kill","harm",
 ]
 
 
