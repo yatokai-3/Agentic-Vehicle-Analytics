@@ -440,6 +440,7 @@ def comparison_function(state: vehRegState):
 
     Requirements:
     - Use the existing `df` (DO NOT load any CSV)
+    - Use the capital version of fuel type , not Diesel or diesel but DIESEL, PETROL, ELECTRIC(BOV), etc. Because fuel types are stored in capital letters in the dataset.
     - DO NOT write any import statements — `pd`, `np`, and `plt` are already available
     - Compare 2 or more entities (states, fuel types, categories, etc.)
     - Create a chart using matplotlib (do NOT call plt.show())
