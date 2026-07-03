@@ -372,7 +372,7 @@ if st.session_state.stage == "input":
     with st.container():
         query = st.text_area(
             "Enter your query",
-            placeholder="e.g. Compare the trend of Electric vehicles across Delhi and Maharashtra from 2018 to 2024",
+            placeholder="e.g. Compare the trend of Electric vehicles across Delhi and Odisha from 2018 to 2024",
             height=100,
             label_visibility="collapsed"
         )
